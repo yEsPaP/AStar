@@ -112,8 +112,9 @@ int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY,
     static const int NEIGHBOURS_X_OFFSET[4] = {+0, +1, +0, -1};
     static const int NEIGHBOURS_Y_OFFSET[4] = {-1, +0, +1, +0};
 
+    bool found = false;
     // Stop if open nodes is empty, if we reached the destination or if we reached the cutoff
-    while (unlikely(!openNodesPriorityQueue.empty() && nCurrentIndex != nTargetIndex && (int)nodeMetadata.size() < nCutoff))
+    while (unlikely(!openNodesPriorityQueue.empty() && !found && (int)nodeMetadata.size() < nCutoff))
     {
         // O(1) to get the node with the lower f because open is sorted
         nCurrentIndex = openNodesPriorityQueue.top();
@@ -154,12 +155,15 @@ int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY,
 
                 // better cost so add it to open
                 openNodesPriorityQueue.push(neighbourIndex);
+
+                if (nTargetIndex == nCurrentIndex)
+                    found = true;
             }
         }
     }
 
     // If we broke the while because we found the target
-    if (nCurrentIndex == nTargetIndex)
+    if (found)
     {
         // Reconstruct path
         int i = 0;

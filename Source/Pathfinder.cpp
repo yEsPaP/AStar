@@ -131,7 +131,7 @@ int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY,
         const auto nDeltaYCurrentTarget = yCurrent - nTargetY;
         const auto dot = abs(nDeltaXCurrentTarget * nDeltaYStartTarget - nDeltaXStartTarget * nDeltaYCurrentTarget);
 
-        for (int i = 0; i < 4; ++i)
+        for (uint8_t i = 0; i < 4; ++i)
         {
             const int new_x = xCurrent + NEIGHBOURS_X_OFFSET[i];
             const int new_y = yCurrent + NEIGHBOURS_Y_OFFSET[i];

@@ -74,8 +74,8 @@ struct NodeData
 
 // Same as FindPath, but with a cutoff of nodes count discovered
 int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY, const int nTargetIndex, const int nTargetX, const int nTargetY,
-                    const unsigned char *pMap, const int nMapWidth, const int nMapHeight,
-                    int *pOutBuffer, const int nOutBufferSize, const int nCutoff)
+                    const std::vector<uint8_t>& pMap, const int nMapWidth, const int nMapHeight,
+                    std::vector<int>& pOutBuffer, const int nCutoff)
 {
 
     unordered_map<int, NodeData> nodeMetadata;
@@ -166,8 +166,8 @@ int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY,
         while (likely(nodeMetadata[nCurrentIndex].nParentIndex != -1))
         {
             nCurrentIndex = nodeMetadata[nCurrentIndex].nParentIndex;
-            if (likely(i < nOutBufferSize))
-                pOutBuffer[i] = nCurrentIndex;
+            if (likely(i < pMap.size()))
+                pOutBuffer.emplace_back(nCurrentIndex);
             i++;
         }
         return i == 0 ? -1 : i;
@@ -179,8 +179,8 @@ int PartialFindPath(const int nStartIndex, const int nStartX, const int nStartY,
 
 int FindPath(const int nStartX, const int nStartY,
              const int nTargetX, const int nTargetY,
-             const unsigned char *pMap, const int nMapWidth, const int nMapHeight,
-             int *pOutBuffer, const int nOutBufferSize)
+             const std::vector<uint8_t>& pMap, const int nMapWidth, const int nMapHeight,
+             std::vector<int32_t>& pOutBuffer)
 
 {
     // Consider simple case if target is the same as position
@@ -194,11 +194,11 @@ int FindPath(const int nStartX, const int nStartY,
 #if CHECK_END_IF_NARROWLY_ENCLOSED_BEFORE_STARTING
     // Checks a bit of the world map around start before the normal search
     const int nCutoff = static_cast<int>(nMapWidth * nMapHeight * WORLD_MAP_END_ENCLOSED_WEIGHT);
-    const auto nPartialResult = PartialFindPath(nStartIndex, nStartX, nStartY, nTargetIndex, nTargetX, nTargetY, pMap, nMapWidth, nMapHeight, pOutBuffer, nOutBufferSize, nCutoff);
+    const auto nPartialResult = PartialFindPath(nStartIndex, nStartX, nStartY, nTargetIndex, nTargetX, nTargetY, pMap, nMapWidth, nMapHeight, pOutBuffer, nCutoff);
     if (unlikely(nPartialResult == -1))
         return -1;
 #endif
 
     // Reverse nTargetIndex and nStartIndex so the path doesn't need to be reversed later on
-    return PartialFindPath(nTargetIndex, nTargetX, nTargetY, nStartIndex, nStartX, nStartY, pMap, nMapWidth, nMapHeight, pOutBuffer, nOutBufferSize, nMapWidth * nMapHeight + 1);
+    return PartialFindPath(nTargetIndex, nTargetX, nTargetY, nStartIndex, nStartX, nStartY, pMap, nMapWidth, nMapHeight, pOutBuffer, nMapWidth * nMapHeight + 1);
 }
